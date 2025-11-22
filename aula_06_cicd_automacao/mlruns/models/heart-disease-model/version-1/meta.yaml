@@ -1,0 +1,15 @@
+creation_timestamp: 1763855618789
+current_stage: None
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1763855618789
+model_id: m-0d55439806164c38a3e74e3a81b751bb
+name: heart-disease-model
+run_id: 9f01627bd90440f1a14ded4fc8bb07d2
+run_link: null
+source: models:/m-0d55439806164c38a3e74e3a81b751bb
+status: READY
+status_message: null
+storage_location: file:///Users/luiz.braz/Personal-Labs/introducao-ciclo-de-vida-de-modelos/aula_06_cicd_automacao/mlruns/286925318466199768/models/m-0d55439806164c38a3e74e3a81b751bb/artifacts
+user_id: null
+version: 1

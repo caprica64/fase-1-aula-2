@@ -1,13 +1,14 @@
 # Diagrama do Fluxo CI/CD - Aula 06
 
-## 📊 Visão Geral do Pipeline
+## 📊 Visão Geral do Pipeline Atualizado
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    DESENVOLVEDOR                                 │
-│  - Modifica código (train.py, preprocessing.py)                 │
-│  - Ajusta hiperparâmetros                                        │
-│  - Testa localmente                                             │
+│  - Ajusta hiperparâmetros diretamente no train.py               │
+│    (comentando/descomentando blocos)                            │
+│  - Modifica preprocessing/testes conforme necessário            │
+│  - Executa testes locais antes do push                          │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          │ git commit & push
@@ -15,10 +16,11 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                    GITHUB REPOSITORY                             │
 │  - Detecta alterações na branch main                            │
-│  - Trigger: paths em aula_06_cicd_automacao/** ou data/**       │
+│  - Trigger: paths em aula_06_cicd_automacao/**, data/**         │
+│    ou no próprio workflow                                      │
 └────────────────────────┬────────────────────────────────────────┘
                          │
-                         │ Inicia GitHub Actions
+                         │ Dispara GitHub Actions
                          ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │              JOB 1: TESTES (test)                                │
@@ -28,135 +30,54 @@
 │  │ 3. Instalar dependências (requirements.txt)       │          │
 │  │ 4. Executar: python test_pipeline.py             │          │
 │  │                                                    │          │
-│  │ Testes incluem:                                   │          │
-│  │  ✓ MissingValueImputer                           │          │
-│  │  ✓ CategoricalEncoder                            │          │
-│  │  ✓ FeatureEngineer                               │          │
-│  │  ✓ Pipeline consistency                          │          │
-│  │  ✓ Data loading & quality                        │          │
+│  │ Testes garantem:                                  │          │
+│  │  ✓ Integridade dos transformers                   │          │
+│  │  ✓ Pipeline sklearn consistente                   │          │
+│  │  ✓ Qualidade mínima dos dados                     │          │
 │  └───────────────────────────────────────────────────┘          │
 │                         │                                        │
-│                         │ Se falhar → STOP ❌                    │
-│                         │ Se passar → Continua ✅                │
+│                         │ Falhou → STOP ❌                       │
+│                         │ Passou → Próximo ✅                    │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│         JOB 2: TREINAR BASELINE (train-baseline)                 │
+│       JOB 2: TREINAR MODELO (train-model)                  │
 │  ┌───────────────────────────────────────────────────┐          │
 │  │ 1. Checkout código                                 │          │
 │  │ 2. Setup Python 3.10                              │          │
 │  │ 3. Instalar dependências                          │          │
-│  │ 4. Executar: python train.py --model-type baseline│          │
+│  │ 4. Executar: python train.py                      │          │
 │  │                                                    │          │
 │  │ Pipeline de Treinamento:                          │          │
-│  │  ├─ Carregar dados (heart_disease_uci.csv)      │          │
-│  │  ├─ Split train/test (80/20, stratify)          │          │
-│  │  ├─ Criar pipeline sklearn:                      │          │
-│  │  │   ├─ MissingValueImputer                     │          │
-│  │  │   ├─ CategoricalEncoder                      │          │
-│  │  │   ├─ FeatureEngineer                         │          │
-│  │  │   ├─ StandardScaler                          │          │
-│  │  │   └─ RandomForestClassifier(baseline params)│          │
-│  │  ├─ Treinar modelo                               │          │
-│  │  ├─ Avaliar métricas                             │          │
-│  │  └─ Logar no MLflow:                             │          │
-│  │       ├─ Parâmetros (n_estimators, max_depth...) │          │
-│  │       ├─ Métricas (accuracy, precision, recall...)│          │
-│  │       ├─ Modelo completo (pipeline)             │          │
-│  │       └─ Se accuracy >= 0.75 → Model Registry   │          │
+│  │  ├─ Carrega heart_disease_uci.csv                │          │
+│  │  ├─ train_test_split estratificado (80/20)       │          │
+│  │  ├─ Pipeline sklearn                             │          │
+│  │  │   • MissingValueImputer                       │          │
+│  │  │   • CategoricalEncoder                        │          │
+│  │  │   • FeatureEngineer                           │          │
+│  │  │   • StandardScaler                            │          │
+│  │  │   • RandomForestClassifier (params atuais)    │          │
+│  │  ├─ Métricas: accuracy, precision, recall, f1    │          │
+│  │  └─ Log no MLflow (params + métricas + modelo)   │          │
 │  └───────────────────────────────────────────────────┘          │
 │                         │                                        │
-│                         │ Upload artifacts (mlruns/)             │
+│                         │ Upload opcional do diretório mlruns/   │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│       JOB 3: TREINAR OTIMIZADO (train-optimized)                 │
-│                  [CONDICIONAL]                                   │
-│  Executa se:                                                     │
-│   - workflow_dispatch (manual) OU                                │
-│   - commit message contém "[train-optimized]"                    │
+│          JOB 3: RESUMO (summary)                                 │
 │  ┌───────────────────────────────────────────────────┐          │
-│  │ 1. Checkout código                                 │          │
-│  │ 2. Setup Python 3.10                              │          │
-│  │ 3. Instalar dependências                          │          │
-│  │ 4. Executar: python train.py --model-type optimized│         │
-│  │                                                    │          │
-│  │ Diferenças vs Baseline:                           │          │
-│  │  - n_estimators: 124 (vs 100)                    │          │
-│  │  - max_depth: 15 (vs None)                       │          │
-│  │  - max_features: 2 (vs 'sqrt')                   │          │
-│  │  - min_samples_split: 10 (vs 2)                  │          │
-│  │                                                    │          │
-│  │ MLflow:                                           │          │
-│  │  ├─ Log params, metrics, model                   │          │
-│  │  ├─ Se accuracy >= 0.75 → Model Registry         │          │
-│  │  └─ Alias "Production" → versão otimizada        │          │
+│  │ Exibe mensagens finais e lembra de verificar o    │          │
+│  │ MLflow UI para visualizar runs e promoções.       │          │
 │  └───────────────────────────────────────────────────┘          │
-│                         │                                        │
-│                         │ Upload artifacts (mlruns/)             │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│      JOB 4: COMPARAR E PROMOVER (compare-and-promote)            │
-│  ┌───────────────────────────────────────────────────┐          │
-│  │ 1. Checkout código                                 │          │
-│  │ 2. Exibir mensagem de sucesso                     │          │
-│  │ 3. Instruções para visualizar no MLflow UI        │          │
-│  └───────────────────────────────────────────────────┘          │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    MLFLOW TRACKING                               │
-│  Experiment: heart-disease-cicd                                  │
-│  ┌─────────────────────────────────────────────────┐            │
-│  │ Run 1: baseline_random_forest                    │            │
-│  │  - Parameters: n_estimators=100, max_depth=None │            │
-│  │  - Metrics: test_accuracy=0.82, ...             │            │
-│  │  - Artifacts: model/ (pipeline completo)        │            │
-│  └─────────────────────────────────────────────────┘            │
-│  ┌─────────────────────────────────────────────────┐            │
-│  │ Run 2: optimized_random_forest                   │            │
-│  │  - Parameters: n_estimators=124, max_depth=15   │            │
-│  │  - Metrics: test_accuracy=0.85, ...             │            │
-│  │  - Artifacts: model/ (pipeline completo)        │            │
-│  └─────────────────────────────────────────────────┘            │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  MLFLOW MODEL REGISTRY                           │
-│  Model: heart-disease-model                                      │
-│  ┌─────────────────────────────────────────────────┐            │
-│  │ Version 1: baseline                              │            │
-│  │  - Source: Run 1                                 │            │
-│  │  - Stage: None                                   │            │
-│  │  - Accuracy: 0.82                                │            │
-│  └─────────────────────────────────────────────────┘            │
-│  ┌─────────────────────────────────────────────────┐            │
-│  │ Version 2: optimized                    ⭐       │            │
-│  │  - Source: Run 2                                 │            │
-│  │  - Alias: Production                             │            │
-│  │  - Accuracy: 0.85                                │            │
-│  └─────────────────────────────────────────────────┘            │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    DEPLOYMENT (Futuro)                           │
-│  - Servir modelo via MLflow Model Serving                        │
-│  - Deploy em container (Docker)                                  │
-│  - API REST para inferência                                     │
-│  - Monitoramento com Evidently (Aula 05)                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🔄 Fluxo de Decisão
+## 🔄 Fluxo de Decisão Atual
 
 ```
 ┌────────────────┐
@@ -165,44 +86,34 @@
         │
         ▼
 ┌────────────────┐      ❌ Falhou
-│  Testes        ├──────────────────► STOP (Notificar dev)
+│  Testes        ├──────────────────► STOP (corrigir e reenviar)
 └───────┬────────┘
         │ ✅ Passou
         ▼
-┌────────────────┐      Accuracy < 0.60
-│  Train Baseline├──────────────────► STOP (Pipeline falha)
-└───────┬────────┘
-        │ Accuracy >= 0.75
-        ├──────────────────────────► Registra no Model Registry
-        │
-        │ [train-optimized] no commit?
-        ▼
-┌─────────┴──────┐
-│  Sim   │  Não  │
-└────┬───┴───┬───┘
-     │       │
-     │       └──────────────────────► FIM
-     ▼
-┌────────────────┐      Accuracy < 0.60
-│ Train Optimized├──────────────────► STOP (Pipeline falha)
-└───────┬────────┘
-        │ Accuracy >= 0.75
-        ├──────────────────────────► Registra no Model Registry
-        │
-        │ Optimized > Baseline?
-        ▼
-┌─────────┴──────┐
-│  Sim   │  Não  │
-└────┬───┴───┬───┘
-     │       │
-     │       └──────────────────────► Mantém Baseline como Production
-     ▼
-Set Alias "Production" para Optimized
-     │
-     ▼
 ┌────────────────┐
-│  FIM - Sucesso │
-└────────────────┘
+│  Treinamento   │
+└───────┬────────┘
+        │
+        ▼
+┌──────────────────────────────────────┐
+│ Sempre registra nova versão no       │
+│ MLflow Model Registry                │
+└───────┬──────────────────────────────┘
+        │
+        ├─ Primeira versão? → Sim
+        │       │
+        │       └► Define alias Production automaticamente
+        │
+        └─ Primeira versão? → Não
+                │
+                ▼
+       Recupera melhor acurácia anterior
+                │
+                ├─ Nova acurácia > melhor anterior?
+                │        │
+                │        └► Atualiza alias Production para versão nova
+                │
+                └─ Caso contrário, mantém Production atual
 ```
 
 ---
@@ -211,58 +122,49 @@ Set Alias "Production" para Optimized
 
 ```
 aula_06_cicd_automacao/
-├── mlruns/                           # Tracking local do MLflow
+├── mlruns/
 │   └── <experiment_id>/
-│       ├── <run_id_baseline>/
-│       │   ├── artifacts/
-│       │   │   └── model/           # Pipeline completo (pkl)
-│       │   ├── metrics/
-│       │   │   ├── test_accuracy
-│       │   │   ├── test_precision
-│       │   │   └── ...
-│       │   ├── params/
-│       │   │   ├── n_estimators
-│       │   │   ├── max_depth
-│       │   │   └── ...
-│       │   └── tags/
-│       └── <run_id_optimized>/
-│           └── ... (mesma estrutura)
-└── preprocessing.py                  # Logado junto com o modelo
+│       └── <run_id>/
+│           ├── artifacts/model/        # Pipeline completo
+│           ├── metrics/test_accuracy   # e demais métricas
+│           ├── params/*.yaml           # hiperparâmetros ativos
+│           └── tags/                   # metadados da execução
+└── preprocessing.py                    # Referenciado no MLflow
 ```
 
 ---
 
-## 🎯 Critérios de Promoção
+## 🎯 Critérios de Registro e Promoção
 
-| Condição | Ação |
+| Situação | Ação |
 |----------|------|
-| `test_accuracy < 0.60` | ❌ Pipeline falha, não loga no MLflow |
-| `0.60 <= test_accuracy < 0.75` | ⚠️ Loga no MLflow, NÃO registra no Model Registry |
-| `test_accuracy >= 0.75` | ✅ Loga no MLflow E registra no Model Registry |
-| `optimized > baseline` | 🏆 Alias "Production" → modelo otimizado |
+| Testes falham | ❌ Pipeline interrompido antes do treino |
+| Treinamento roda (qualquer acurácia) | ✅ Run logado no MLflow e versão registrada |
+| Não há versões anteriores | 🚀 Alias `Production` aponta para a versão recém-criada |
+| Há versões anteriores e `test_accuracy` atual > melhor anterior | 🏆 Alias `Production` movido para a nova versão |
+| Há versões anteriores e `test_accuracy` atual ≤ melhor anterior | ⚖️ Alias `Production` permanece na melhor versão anterior |
+
+Observação: o script continua imprimindo alerta e retornando código de erro se a acurácia cair abaixo de 0.50, garantindo visibilidade quando algo muito errado ocorre.
 
 ---
 
-## 🔔 Notificações (Futuro)
+## 🧠 Dicas para Ajustar Hiperparâmetros
 
-O pipeline pode ser estendido para enviar notificações:
-- ✉️ Email em caso de falha
-- 💬 Slack quando novo modelo é promovido
-- 📊 Dashboard com histórico de métricas
-- 🚨 Alertas se acurácia cair abaixo de threshold
+- O bloco ativo de hiperparâmetros fica em `train.py` (variável `ACTIVE_PARAMS`).
+- Para experimentar novos valores, comente/descomente o bloco desejado ou edite diretamente os parâmetros.
+- Basta commitar a mudança e o pipeline executará com essa configuração na próxima execução.
 
 ---
 
-## 📚 Boas Práticas Implementadas
+## 📚 Boas Práticas Mantidas
 
-✅ **Separação de responsabilidades**: preprocessing.py, train.py, test_pipeline.py  
-✅ **Testes automatizados**: Validação antes do treinamento  
-✅ **Versionamento**: Git + MLflow Model Registry  
-✅ **Reprodutibilidade**: random_state=42, code_paths no MLflow  
-✅ **Documentação**: README, QUICKSTART, comentários no código  
-✅ **CI/CD declarativo**: GitHub Actions YAML  
-✅ **Model Registry**: Gestão de versões e aliases  
+✅ Separação clara entre preprocessing, treino e testes.  
+✅ Testes unitários como gate antes do treinamento.  
+✅ MLflow como fonte da verdade para métricas, parâmetros e modelos.  
+✅ Registro automático de todas as execuções no Model Registry.  
+✅ Promoção baseada em métrica objetiva (acurácia).  
+✅ Workflow simples e declarativo no GitHub Actions.
 
 ---
 
-Este diagrama ilustra todo o fluxo do pipeline de CI/CD implementado na Aula 06! 🚀
+Este documento acompanha o fluxo atual do pipeline da Aula 06, já com o modelo único e promoção automática guiada por métricas. 🚀

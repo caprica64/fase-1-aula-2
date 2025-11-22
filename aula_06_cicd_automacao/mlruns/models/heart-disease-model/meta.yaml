@@ -1,0 +1,8 @@
+aliases:
+  Production: '1'
+creation_timestamp: 1763855618787
+deployment_job_id: null
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1763855618802
+name: heart-disease-model
