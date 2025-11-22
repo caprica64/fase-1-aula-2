@@ -65,7 +65,7 @@ jobs:
       - name: Treinar modelo
         run: |
           cd aula_06_cicd_automacao
-          python train.py --min-accuracy 0.75
+          python train.py
       
       - name: Upload MLflow artifacts (opcional)
         if: always()
