@@ -30,7 +30,6 @@ warnings.filterwarnings('ignore')
 # Configurações de hiperparâmetros
 # ============================================================================
 
-
 PARAMS = {
     'max_depth': 5,
     'max_features': 7,
