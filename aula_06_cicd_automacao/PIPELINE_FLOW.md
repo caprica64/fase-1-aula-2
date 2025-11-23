@@ -64,8 +64,8 @@
 │                         │                                        │
 │                         │ Upload opcional do diretório usado no  │
 │                         │ MLflow (mlruns/ local, mlruns_ci no CI)│
-│                         │ Snapshot commitado p/ repo (requer     │
-│                         │ secret GH_PAT no repositório)          │
+│                         │ Snapshot commitado p/ repo (usa        │
+│                         │ permissão contents:write do workflow)  │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          ▼
