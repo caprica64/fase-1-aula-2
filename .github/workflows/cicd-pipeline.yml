@@ -44,6 +44,7 @@ jobs:
     name: Treinar Modelo
     runs-on: ubuntu-latest
     needs: test  # Só executa se os testes passarem
+    environment: mlops
     
     # Configura MLflow tracking (pode usar servidor remoto ou local)
     
