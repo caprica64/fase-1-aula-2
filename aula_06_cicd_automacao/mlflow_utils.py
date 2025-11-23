@@ -17,7 +17,7 @@ def resolve_tracking_paths() -> Tuple[str, Optional[str]]:
         repo_dir = os.path.dirname(os.path.abspath(__file__))
         tracking_folder = os.environ.get("MLFLOW_TRACKING_FOLDER")
         if not tracking_folder:
-            tracking_folder = "mlruns_ci" if os.environ.get("CI") else "mlruns"
+            tracking_folder = "mlruns_ci_snapshot" if os.environ.get("CI") else "mlruns_local"
         if not os.path.isabs(tracking_folder):
             tracking_folder = os.path.join(repo_dir, tracking_folder)
         os.makedirs(tracking_folder, exist_ok=True)

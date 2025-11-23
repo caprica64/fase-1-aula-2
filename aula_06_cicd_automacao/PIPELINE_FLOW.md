@@ -63,7 +63,7 @@
 │  └───────────────────────────────────────────────────┘          │
 │                         │                                        │
 │                         │ Upload opcional do diretório usado no  │
-│                         │ MLflow (mlruns/ local,                 │
+│                         │ MLflow (mlruns_local/ local,           │
 │                         │ mlruns_ci_snapshot no CI)              │
 │                         │ Snapshot commitado p/ repo (usa        │
 │                         │ permissão contents:write do workflow)  │
@@ -156,7 +156,7 @@ mantendo o histórico e permitindo comparação com versões anteriores.
 
 ```
 aula_06_cicd_automacao/
-├── mlruns/ (execuções locais)
+├── mlruns_local/ (execuções locais, ignorado no git)
 │   └── ...
 ├── mlruns_ci_snapshot/ (execuções via GitHub Actions e commitado)
 │   ├── <experiment_id>/
@@ -201,6 +201,9 @@ python register_model.py   # registra e (se aplicável) promove
 
 Mantendo `MLFLOW_TRACKING_FOLDER` apontando para o mesmo diretório, você garante
 que o registro manual reflita exatamente o que o pipeline faria.
+
+> Por padrão, execuções locais usam `mlruns_local/` (ignorado no git) enquanto o
+> GitHub Actions força `mlruns_ci_snapshot/`, evitando conflitos entre ambientes.
 
 ---
 
