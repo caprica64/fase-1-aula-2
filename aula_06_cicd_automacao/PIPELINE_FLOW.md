@@ -64,6 +64,8 @@
 │                         │                                        │
 │                         │ Upload opcional do diretório usado no  │
 │                         │ MLflow (mlruns/ local, mlruns_ci no CI)│
+│                         │ Snapshot commitado p/ repo (requer     │
+│                         │ secret GH_PAT no repositório)          │
 └────────────────────────┬────────────────────────────────────────┘
                          │
                          ▼
@@ -126,6 +128,8 @@ aula_06_cicd_automacao/
 ├── mlruns/ (execuções locais)
 │   └── ...
 ├── mlruns_ci/ (execuções via GitHub Actions)
+│   └── ...
+├── mlruns_ci_snapshot/ (conteúdo commitado pela Action)
 │   └── <experiment_id>/
 │       └── <run_id>/
 │           ├── artifacts/model/        # Pipeline completo

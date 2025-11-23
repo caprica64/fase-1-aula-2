@@ -74,6 +74,31 @@ jobs:
           name: mlruns
           path: aula_06_cicd_automacao/mlruns_ci/
           retention-days: 7
+
+      - name: Commit snapshot do MLflow (opcional)
+        if: success() && github.ref == 'refs/heads/main'
+        run: |
+          GH_PAT="${{ secrets.GH_PAT }}"
+          if [ -z "$GH_PAT" ]; then
+            echo "GH_PAT não configurado. Pulando commit do mlruns_ci."
+            exit 0
+          fi
+          if [ ! -d "aula_06_cicd_automacao/mlruns_ci" ]; then
+            echo "Diretório mlruns_ci inexistente. Nada para snapshot."
+            exit 0
+          fi
+          SNAPSHOT_DIR="aula_06_cicd_automacao/mlruns_ci_snapshot"
+          rm -rf "$SNAPSHOT_DIR"
+          cp -R aula_06_cicd_automacao/mlruns_ci "$SNAPSHOT_DIR"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add "$SNAPSHOT_DIR"
+          if git diff --cached --quiet; then
+            echo "Sem alterações para commitar."
+            exit 0
+          fi
+          git commit -m "chore(ci): atualiza snapshot mlruns [skip ci]"
+          git push https://${GH_PAT}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
   
   # Job 3: Resumo
   summary:
