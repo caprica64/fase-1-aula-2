@@ -84,6 +84,7 @@ jobs:
             echo "GH_PAT não configurado. Pulando commit do mlruns_ci."
             exit 0
           fi
+          echo "GH_PAT detectado (tamanho: ${#GH_PAT} caracteres)."
           if [ ! -d "aula_06_cicd_automacao/mlruns_ci" ]; then
             echo "Diretório mlruns_ci inexistente. Nada para snapshot."
             exit 0
