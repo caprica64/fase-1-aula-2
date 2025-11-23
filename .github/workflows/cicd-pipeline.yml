@@ -134,6 +134,15 @@ jobs:
           name: mlruns
           path: aula_06_cicd_automacao
 
+      - name: Ajustar diretório do artifact
+        run: |
+          SRC="aula_06_cicd_automacao/aula_06_cicd_automacao/${MLFLOW_TRACKING_FOLDER}"
+          DEST="aula_06_cicd_automacao/${MLFLOW_TRACKING_FOLDER}"
+          if [ -d "$SRC" ]; then
+            rm -rf "$DEST"
+            mv "$SRC" "$DEST"
+          fi
+
       - name: Listar conteúdo recebido
         run: |
           ls -R aula_06_cicd_automacao/${{ env.MLFLOW_TRACKING_FOLDER }} | head -n 200 || true
