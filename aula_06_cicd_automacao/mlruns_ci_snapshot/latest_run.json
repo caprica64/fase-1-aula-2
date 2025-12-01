@@ -1,6 +1,6 @@
 {
-  "run_id": "eae5350c85fd4f44aa8014853a15c4ff",
-  "model_uri": "models:/m-96dc9fcc1f5540d4be6cf8dc6e6e4e5d",
+  "run_id": "ba1993b3f0a44315aeeb9d3e9bfa1851",
+  "model_uri": "models:/m-4eb73986374c47ec94002d33fe784159",
   "test_accuracy": 0.8260869565217391,
-  "logged_at": "2025-11-23T02:31:52.449685"
+  "logged_at": "2025-12-01T23:43:37.143670"
 }
