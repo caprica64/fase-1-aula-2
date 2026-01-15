@@ -2,6 +2,7 @@ artifact_location: file:///home/runner/work/introducao-ciclo-de-vida-de-modelos/
 creation_timestamp: 1768508716626
 experiment_id: '249755071298649575'
 last_updated_timestamp: 1768508719309
+lifecycle_stage: deleted
 model_id: m-8e2d1fc17f74439fb5b694adffc874a4
 model_type: null
 name: model
