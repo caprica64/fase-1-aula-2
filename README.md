@@ -22,9 +22,6 @@ Automatize o ciclo de vida de modelos com pipelines de CI/CD.
 ### Aula 7: Governança e Ciclo de Feedbacks
 Implemente governança de modelos e ciclos de feedback.
 
-### Aula 8: Projeto Final - Ciclo Completo de ML
-Projeto integrador aplicando todos os conceitos aprendidos.
-
 ## 🚀 Instalação
 
 ```bash
@@ -50,7 +47,6 @@ pip install -r requirements.txt
 ├── aula_05_monitoramento_manutencao/  # Exercícios de monitoramento
 ├── aula_06_cicd_automacao/           # Exercícios de CI/CD
 ├── aula_07_governanca_feedback/      # Exercícios de governança
-├── aula_08_projeto_final/            # Projeto final
 ├── data/                             # Datasets para exercícios
 └── requirements.txt                  # Dependências
 ```
